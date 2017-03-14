@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -63,4 +64,8 @@ class ScValueDeclarationImpl private (stub: StubElement[ScValue], nodeType: IEle
       case _ => super.accept(visitor)
     }
   }
+
+  override def getNameIdentifier = null
+
+  override def setName(name: String) = throw new IncorrectOperationException
 }

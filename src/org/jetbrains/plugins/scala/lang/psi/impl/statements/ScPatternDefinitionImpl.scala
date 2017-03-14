@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -80,4 +81,8 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition
       stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, JavaArrayFactoryUtil.ScPatternListFactory).apply(0)
     } else findChildByClass(classOf[ScPatternList])
   }
+
+  override def getNameIdentifier = null
+
+  override def setName(name: String) = throw new IncorrectOperationException
 }
