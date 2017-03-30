@@ -79,7 +79,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
       val command =
         if (moduleCommands.size == 1) moduleCommands.head
-        else moduleCommands.mkString("; ", "; ", "")
+        else moduleCommands.mkString("all ", " ", "")
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
       val task = new CommandTask(project, command, callbackOpt)
