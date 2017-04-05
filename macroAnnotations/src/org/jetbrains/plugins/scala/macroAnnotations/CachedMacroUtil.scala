@@ -243,8 +243,8 @@ object CachedMacroUtil {
 
     import c.universe.Quasiquote
 
-    if (hasParams) q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.MappedKey[$dataType, $resultType]]($keyId)"
-    else q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.RefKey[$resultType]]($keyId)"
+    if (hasParams) q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.CachedMap[$dataType, $resultType]]($keyId)"
+    else q"$cachesUtilFQN.getOrCreateKey[$cachesUtilFQN.CachedRef[$resultType]]($keyId)"
   }
 
 }
