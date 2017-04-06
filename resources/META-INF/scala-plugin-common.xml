@@ -135,7 +135,7 @@
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaBasicCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaUnresolvedNameCompletion"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaUnresolvedNameCompletion"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaUnresolvedNameContributor"
                                 order="before scalaIdentifierCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>

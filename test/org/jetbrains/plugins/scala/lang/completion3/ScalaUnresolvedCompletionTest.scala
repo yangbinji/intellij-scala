@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.lang.annotation.HighlightSeverity
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
 import org.junit.Assert
 
 /**
   * Created by Kate Ustiuzhanin on 24/03/2017.
   */
-class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaUnresolvedCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testFieldVal(): Unit = {
     val fileText =
@@ -36,7 +36,6 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
     val fileText =
       """
         |def foo(a: Int, b: Int): Unit = {
-        |  var <caret>
         |  val mid = a + (b - a) / 2
         |
         |  if (mid == value) {
@@ -47,6 +46,8 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
         |  } else {
         |    foo2(mid + 1, value)
         |  }
+        |
+        |  var <caret>
         |}
       """
 
@@ -57,7 +58,6 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
     val fileText =
       """
         |def foo(a: Int, b: Int): Unit = {
-        |  def <caret>
         |  val mid = a + (b - a) / 2
         |
         |  if (mid == value) {
@@ -68,6 +68,8 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
         |  } else {
         |    foo2(mid + 1, value)
         |  }
+        |
+        |  def <caret>
         |}
       """
 
@@ -115,6 +117,19 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
       Seq("methodWithParams(a: String, b: Int, i: Int)", "methoda(i: Int, i1: Int, str: String, d: Double, i2: Int, str1: String)", "intValue"))
   }
 
+  def testInfixMethodWithParams(): Unit = {
+    val fileText =
+      """
+        |case class I(k: Int) {
+        | I(1) add 3
+        |
+        | def <caret>
+        |}
+      """
+
+    doTest(normalize(fileText), Seq("add(i: Int)"))
+  }
+
   def testObject(): Unit = {
     val fileText =
       """
@@ -122,7 +137,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
         |  def method(): Unit ={
         |    val doubleValue = 34.4
         |    if (doubleValue > intValue) {
-        |      methodWithParams("Hey!")
+        |      methodWithoutParams("Hey!")
         |    } else {
         |      methodWithoutParams()
         |    }
@@ -132,7 +147,33 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    doTest(normalize(fileText), Seq("intValue"))
+    doTest(normalize(fileText), Seq("intValue", "methodWithoutParams", "methodWithoutParams"))
+  }
+
+  def testObjectSelected(): Unit = {
+    val fileText =
+      """
+        |class Test {
+        |  def method(): Unit = {
+        |   methodWithoutParams("Hey!")
+        |   object <caret>
+        |  }
+        |}
+      """
+
+    val resultText =
+      """
+        |class Test {
+        |  def method(): Unit = {
+        |   methodWithoutParams("Hey!")
+        |   object methodWithoutParams {
+        |     def apply(str: String): Any = ???
+        |   }
+        |  }
+        |}
+      """.stripMargin
+
+    doTest(normalize(fileText), normalize(resultText))
   }
 
   def testCaseClass(): Unit = {
@@ -200,17 +241,74 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
     doTest(normalize(fileText), Seq("Test(i: Int, str: String)"))
   }
 
-  private def doTest(fileText: String, includedSeq: Seq[String], excludedSeq: Seq[String] = Seq.empty): Unit = {
+  def testRanges(): Unit = {
+    val fileText =
+      """
+        |class X {
+        |  printX(12)
+        |  printX("Sfd")
+        |
+        |  case class I(k: Int) {
+        |    def addd(i: Int) = ???
+        |
+        |    Seq(3, 4) tail
+        |
+        |    def tt: Seq[Int] = ???
+        |
+        |  }
+        |
+        |  def foo(a: Int, b: Int): Unit = {
+        |    val mid = a + (b - a) / 2
+        |
+        |    if (mid == value) {
+        |      field1 = "got result"
+        |      println(field1)
+        |    } else if (mid > value) {
+        |      foo1(a, mid - 1)
+        |    } else {
+        |      foo2(mid + 1, value)
+        |    }
+        |
+        |    def <caret>
+        |  }
+        |}
+      """
 
-    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin.replaceAll("\r", "").trim)
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
-
-    val expected = activeLookup.filter(_.isInstanceOf[ScalaTextLookupItem]).map(_.getLookupString).sorted
-
-    Assert.assertEquals(null, expected.mkString("\n"), includedSeq.sorted.mkString("\n"))
-    assertContaints(expected, excludedSeq)
+    doTest(
+      fileText,
+      Seq("field1", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)", "value"),
+      Seq("printX(str: String)", "printX(i: Int)")
+    )
   }
 
+  private def doHighlighting(fileText: String) = {
+    val fixture = getFixture
+    fixture.openFileInEditor(fixture.configureByText("dummy.scala", normalize(fileText)).getVirtualFile)
+    fixture.doHighlighting(HighlightSeverity.ERROR)
+    fixture
+  }
+
+  private def doTest(fileText: String, includedSeq: Seq[String], excludedSeq: Seq[String] = Seq.empty): Unit = {
+    doHighlighting(fileText)
+
+    val actual =
+      getFixture
+        .completeBasic()
+        .filter(_.isInstanceOf[ScalaTextLookupItem])
+        .map(_.getLookupString)
+        .sorted
+
+    Assert.assertEquals(null, includedSeq.sorted.mkString("\n"), actual.mkString("\n"))
+    assertContaints(actual, excludedSeq)
+  }
+
+  private def doTest(fileText: String, resultText: String): Unit = {
+    doHighlighting(fileText)
+
+    getFixture.completeBasic()
+    getFixture.finishLookup('\t')
+    getFixture.checkResult(resultText)
+  }
 
   private def assertContaints(expected: Seq[String], excluded: Seq[String]): Unit = {
     val intersection = expected.intersect(excluded)
