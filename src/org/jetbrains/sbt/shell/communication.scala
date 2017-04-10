@@ -5,7 +5,7 @@ import java.util.concurrent._
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Key, SystemInfo}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -182,7 +182,19 @@ private[shell] object SbtProcessUtil {
   val IDEA_PROMPT_MARKER = "\u200b\u200b\u200b"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean = line.trim.endsWith(IDEA_PROMPT_MARKER)
+  def promptReady(line: String): Boolean = (SystemInfo.isWindows && promptReadyDefault(line)) ||
+    line.trim.endsWith(IDEA_PROMPT_MARKER)
+
+  private def promptReadyDefault(line: String): Boolean =
+    line.trim match {
+      case
+        ">" | // TODO can we guard against false positives? like somebody outputting > on the bare prompt
+        "scala>" |
+        "Hit enter to retry or 'exit' to quit:"
+      => true
+
+      case _ => false
+    }
 }
 
 /**
