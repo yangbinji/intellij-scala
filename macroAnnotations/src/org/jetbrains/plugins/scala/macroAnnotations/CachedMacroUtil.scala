@@ -25,6 +25,26 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
   }
 
+  def timestampedFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
+  }
+
+  def timestampedTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tq"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
+  }
+
+  def defaultValue(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {
+    import c.universe.Quasiquote
+    tp match {
+      case tq"Boolean" => q"false"
+      case tq"Int" => q"0"
+      case tq"Long" => q"0L"
+      case _ => q"null"
+    }
+  }
+
   def cachedValueTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     tq"_root_.com.intellij.psi.util.CachedValue"

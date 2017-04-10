@@ -183,4 +183,7 @@ object CachesUtil {
         throw ProbablyRecursionException(e, data, key, Set(fun))
     }
   }
+
+  //Tuple2 class doesn't have half-specialized variants, so (T, Long) almost always have boxed long inside
+  case class Timestamped[@specialized(Boolean, Int, AnyRef) T](data: T, modCount: Long)
 }
