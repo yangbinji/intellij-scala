@@ -182,7 +182,8 @@ private[shell] object SbtProcessUtil {
   val IDEA_PROMPT_MARKER = "\u200b\u200b\u200b"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean = line.trim.endsWith(IDEA_PROMPT_MARKER)
+  //TODO this is a temporary hack to have it somehow working version for windows
+  def promptReady(line: String): Boolean = line.trim.endsWith(IDEA_PROMPT_MARKER) || line.trim.endsWith("???")
 }
 
 /**
