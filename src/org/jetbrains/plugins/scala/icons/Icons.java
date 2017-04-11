@@ -23,17 +23,13 @@ import javax.swing.*;
  * @author ilyas
  */
 public interface Icons {
-  Icon FSC = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/fsc.png");
 
   Icon COMPILE_SERVER = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/compileServer.png");
 
-  Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   //todo worksheet logo
   Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   Icon SCALA_SMALL_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.png");
-  Icon SCALA_24 = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala24.png");
   Icon SCRIPT_FILE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.png");
-  Icon BIG_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala32.png");
 
   Icon ADD_CLAUSE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/AddClause.png");
   Icon REMOVE_CLAUSE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/RemoveClause.png");
